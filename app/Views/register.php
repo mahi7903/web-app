@@ -35,7 +35,7 @@
             <i class="fab fa-google"></i>
             <i class="fab fa-facebook"></i>
         </div>
-        <div class="links"><p>Already have an account?</p>
+        <div class="links"><p>Already have an account yet?</p>
         <a href="http://localhost/login">Sign In</a>
     </div>
 </div>
