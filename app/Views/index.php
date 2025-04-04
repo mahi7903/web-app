@@ -9,10 +9,11 @@
 <body>
     <div class="container">
         <h1 class="form-title"> Sign In </h1>
-        <form method="POST" action="Account.php">
+        <form method="POST" action="<?= base_url('/') ?>">
+
             <div class="input-group">
                 <i class="fas fa-envelope"></i>
-                <input type="email" name="email" id="email required" placeholder="Email" required>
+                <input type="email" name="email" id="email" placeholder="Email" required>
             </div>
             <div class="input-group">
                 <i class="fas fa-lock"></i>
