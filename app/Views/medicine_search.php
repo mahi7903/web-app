@@ -1,15 +1,279 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Medicine Search</title>
+  <meta charset="UTF-8">
+  <title>Search Medicine | Web Pharmacy</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: rgb(181, 221, 182);
+      color: #222;
+      padding: 30px 20px;
+      transition: all 0.3s ease;
+    }
+
+    .dark-mode {
+      background-color: rgb(21, 20, 20);
+      color: white;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+      padding: 30px;
+      background-color: #fff;
+      border-radius: 12px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+    }
+
+    .dark-mode .container {
+      background-color: #2a2a2a;
+      color: white;
+      box-shadow: 0 5px 25px rgba(255, 255, 255, 0.1);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #007d44;
+      font-size: 28px;
+    }
+
+    .dark-mode h2 {
+      color: #98f8c4;
+    }
+
+    .search-wrapper {
+      position: relative;
+      width: 100%;
+    }
+
+    .search-box {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    #medInput {
+      flex: 1;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      min-width: 200px;
+    }
+
+    button {
+      background-color: #007d44;
+      color: white;
+      padding: 10px 18px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background-color: #005e34;
+    }
+
+    #suggestions {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background-color: white;
+      z-index: 100;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      overflow: hidden;
+      margin-top: 4px;
+    }
+
+    #suggestions div {
+      padding: 10px 14px;
+      border-bottom: 1px solid #eee;
+      font-size: 15px;
+      transition: background 0.2s ease;
+    }
+
+    #suggestions div:hover {
+      background-color: #e6f4ea;
+      cursor: pointer;
+    }
+
+    .dark-mode #suggestions {
+      background-color: #3a3a3a;
+    }
+
+    .dark-mode #suggestions div {
+      color: white;
+      border-color: #555;
+    }
+
+    .dark-mode #suggestions div:hover {
+      background-color: rgba(0, 255, 160, 0.08);
+    }
+
+    .back-btn {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      background-color: #000;
+      color: #fff;
+      font-size: 20px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-decoration: none;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+      transition: all 0.3s ease;
+    }
+
+    .back-btn:hover {
+      background-color: #007d44;
+      color: white;
+    }
+
+    .dark-mode .back-btn {
+      background-color: white;
+      color: black;
+    }
+
+    .dark-mode .back-btn:hover {
+      background-color: #98f8c4;
+    }
+
+    @media screen and (max-width: 600px) {
+      body {
+        padding: 20px 10px;
+      }
+
+      .container {
+        padding: 20px;
+      }
+
+      h2 {
+        font-size: 22px;
+      }
+
+      #medInput {
+        font-size: 15px;
+      }
+
+      button {
+        font-size: 15px;
+        padding: 10px 14px;
+      }
+
+      .search-box {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .back-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 18px;
+      }
+    }
+  </style>
 </head>
 <body>
-    <h1>Search Medicine (OpenFDA API)</h1>
-    <form action="<?= base_url('medicine/search') ?>" method="get">
 
+  <a href="http://localhost" class="back-btn" title="Back to Home">⬅️</a>
 
-        <input type="text" name="medicine_name" placeholder="Enter medicine name" required>
-        <button type="submit">Search</button>
-    </form>
+  <div class="container">
+    <h2>Search Medicine (OpenFDA API)</h2>
+
+    <div class="search-wrapper">
+      <div class="search-box">
+        <input id="medInput" type="text" placeholder="Type a medicine name..." autocomplete="off" />
+        <button onclick="submitSearch()">Search</button>
+      </div>
+      <div id="suggestions"></div>
+      <div id="recentBox" style="margin-top:20px;">
+        <strong style="color:#007d44;">Recent Searches:</strong>
+        <ul id="recentSearches" style="padding-left:18px; margin-top:5px;"></ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Search suggestion
+    document.getElementById('medInput').addEventListener('keyup', function () {
+      const q = this.value;
+      if (q.length < 3) {
+        document.getElementById('suggestions').innerHTML = '';
+        return;
+      }
+
+      fetch(`https://api.fda.gov/drug/label.json?limit=5&search=${encodeURIComponent(q)}`)
+        .then(res => res.json())
+        .then(data => {
+          const output = (data.results || []).map(item =>
+            `<div>
+              <strong>${item.openfda.generic_name?.[0] || 'Unknown'}</strong><br>
+              <small>${item.purpose?.[0] || 'No purpose info available'}</small>
+            </div>`
+          ).join('');
+          document.getElementById('suggestions').innerHTML = output || '<em>No matches found</em>';
+        })
+        .catch(() => {
+          document.getElementById('suggestions').innerHTML = '<em>No suggestions available</em>';
+        });
+    });
+
+    // Save & show recent searches
+    function submitSearch() {
+      const term = document.getElementById('medInput').value.trim();
+      if (term) {
+        saveRecentSearch(term);
+        alert('Searching for: ' + term);
+      }
+    }
+
+    function saveRecentSearch(term) {
+      let recent = JSON.parse(localStorage.getItem('medRecentSearches') || '[]');
+      if (!recent.includes(term)) {
+        recent.unshift(term);
+        if (recent.length > 5) recent.pop();
+        localStorage.setItem('medRecentSearches', JSON.stringify(recent));
+      }
+    }
+
+    function loadRecentSearches() {
+      const ul = document.getElementById('recentSearches');
+      if (!ul) return;
+      ul.innerHTML = '';
+      const recent = JSON.parse(localStorage.getItem('medRecentSearches') || '[]');
+      recent.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = item;
+        li.style.cursor = 'pointer';
+        li.onclick = () => {
+          document.getElementById('medInput').value = item;
+        };
+        ul.appendChild(li);
+      });
+    }
+
+    // Sync dark theme & load searches on load
+    window.onload = function () {
+      if (localStorage.getItem("theme") === "dark") {
+        document.body.classList.add("dark-mode");
+      }
+      loadRecentSearches();
+    };
+  </script>
 </body>
 </html>
