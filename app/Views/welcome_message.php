@@ -55,16 +55,17 @@
 </head>
 <body>
     <!-- Unified Responsive Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: rgb(18, 42, 10);">
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: rgb(0, 0, 0);">
         <div class="container-fluid">
             <a class="navbar-brand d-flex align-items-center" href="#">
                 <img src="/images/medsIcon.png" alt="" width="30" height="30" class="me-2">
                 Web Pharmacy
             </a>
 
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
-                <span class="navbar-toggler-icon"></span>
+            <button class="navbar-toggler" type="button" id="menuToggleBtn">
+             <span class="navbar-toggler-icon"></span>
             </button>
+
 
             <div class="collapse navbar-collapse justify-content-between" id="navbarContent">
                 <ul class="navbar-nav flex-wrap">
@@ -361,6 +362,38 @@
                 });
             }
         </script>
+        <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const toggleBtn = document.getElementById('menuToggleBtn');
+        const navbarContent = document.getElementById('navbarContent');
+
+        // Toggle menu on hamburger click
+        toggleBtn.addEventListener('click', function () {
+            navbarContent.classList.toggle('show');
+        });
+
+        // Auto-close menu when any nav-link is clicked (mobile only)
+        document.querySelectorAll('.navbar-nav .nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth < 992) {
+                    navbarContent.classList.remove('show');
+                }
+            });
+        });
+
+        // Also close on Dark Theme and Sign In buttons
+        const extraCloseBtns = [document.getElementById('themeToggle'), document.querySelector('a[href="http://localhost/login"]')];
+
+        extraCloseBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (window.innerWidth < 992) {
+                    navbarContent.classList.remove('show');
+                }
+            });
+        });
+    });
+</script>
+
 
 
 
