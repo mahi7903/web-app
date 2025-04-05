@@ -12,17 +12,21 @@ $routes->get('personalcare', 'Personalcare::index');
 $routes->get('disinfectingcream', 'Disinfectingcream::index');
 
 $routes->get('firstaidkit', 'Firstaidkit::index');
-$routes->get('login', 'Login::index');
+//$routes->get('login', 'Login::index');
+//$routes->get('register', 'UserRegister::index');
 
 
+$routes->get('map', 'MapController::index');
 
 
+$routes->get('/', 'Home::index'); // Home page (welcome_message.php)
+$routes->get('/register', 'UserRegister::index'); // Show registration form
+$routes->post('/register/submit', 'UserRegister::submit'); // Handle form submission
+
+$routes->get('/login', 'UserRegister::submit'); 
+$routes->get('medicine', 'MedicineController::index');
+$routes->get('medicine/search', 'MedicineController::search');
 
 
-// Route for displaying the registration form (GET request)
-$routes->get('register', 'Register::index');
-
-// Route for processing the registration form submission (POST request)
-$routes->post('register', 'Register::submit');
 
 

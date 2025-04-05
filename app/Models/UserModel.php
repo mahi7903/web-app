@@ -6,8 +6,17 @@ use CodeIgniter\Model;
 
 class UserModel extends Model
 {
-    protected $table      = 'users';  // Your table name
-    protected $primaryKey = 'id';     // Your primary key
-    protected $allowedFields = ['email', 'name', 'password', 'created_at'];  // Fields to be inserted/updated
-    protected $useTimestamps = false; // Because you are manually adding 'created_at' in the controller
+    protected $table = 'users';  // <-- Changed table name to users
+    protected $primaryKey = 'id';
+    protected $allowedFields = ['username', 'email', 'password', 'created_at'];
+
+    // Save user only if they don't already exist
+    public function saveIfNotExists($data)
+    {
+        $existingUser = $this->where('email', $data['email'])->first();
+
+        if (!$existingUser) {  
+            $this->insert($data);
+        }
+    }
 }
