@@ -76,6 +76,6 @@ class UserController extends BaseController
     public function logout()
     {
         session()->destroy();
-        return redirect()->to('/')->with('message', 'You are logged out.');
+        return redirect()->to('/login')->with('message', 'You are logged out.');
     }
 }

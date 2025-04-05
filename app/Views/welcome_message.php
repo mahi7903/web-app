@@ -60,11 +60,7 @@
     </div>
   <?php endif; ?>
 
-  <!-- 👇 Your regular content starts here -->
-  <div class="container mt-4 text-center">
-    <h1>Welcome to Web Pharmacy</h1>
-    <p>Your trusted online pharmacy for medicines and healthcare products.</p>
-  </div>
+  
   <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: rgb(0, 0, 0);">
     <div class="container-fluid">
       <a class="navbar-brand d-flex align-items-center" href="#">
@@ -76,7 +72,7 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarContent">
         <ul class="navbar-nav flex-wrap">
-          <li class="nav-item"><a class="nav-link" href="http://localhost/generalmeds">General Meds</a></li>
+          <li class="nav-item"><a class="nav-link" href="http://localhost/pain">General Meds</a></li>
           <li class="nav-item"><a class="nav-link" href="http://localhost/personalcare">Personal Care</a></li>
           <li class="nav-item"><a class="nav-link" href="http://localhost/disinfectingcream">Disinfecting Creams</a></li>
           <li class="nav-item"><a class="nav-link" href="#">Hair/Skin Care</a></li>
