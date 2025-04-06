@@ -56,15 +56,14 @@
   </h2>
 
   <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
-
     <?php if (isset($meds)): ?>
       <?php foreach ($meds as $index => $med): ?>
         <div class="col">
           <div class="card h-100 p-3 shadow-sm">
-            <img src="<?= $med['image_url'] ?? 'https://via.placeholder.com/150x100?text=Pain+Relief' ?>" class="img-fluid mb-2 w-100">
+            <img src="<?= $med['image_url'] ?? '/images/' . strtolower($med['name']) . '.jpg' ?>" class="img-fluid mb-2 w-100">
             <h5 class="card-title"><?= esc($med['name']) ?></h5>
-            <p><strong>Purpose:</strong> <?= character_limiter($med['purpose'], 100) ?></p>
-            <p><strong>Side Effects:</strong> <?= character_limiter($med['side_effects'], 100) ?></p>
+            <p><strong>Purpose:</strong> <?= esc($med['purpose']) ?></p>
+            <p><strong>Side Effects:</strong> <?= esc($med['side_effects']) ?></p>
 
             <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#collapse<?= $index ?>">
               🔎 More Info
@@ -86,10 +85,10 @@
       <?php foreach ($apiMeds as $index => $med): ?>
         <div class="col">
           <div class="card h-100 p-3 shadow-sm">
-            <img src="https://via.placeholder.com/150x100?text=FDA+Data" class="img-fluid mb-2 w-100">
+            <img src="<?= $med['image_url'] ?? '/images/' . strtolower($med['name']) . '.jpg' ?>" class="img-fluid mb-2 w-100">
             <h5 class="card-title"><?= esc($med['name']) ?></h5>
-            <p><strong>Purpose:</strong> <?= character_limiter($med['purpose'], 100) ?></p>
-            <p><strong>Side Effects:</strong> <?= character_limiter($med['side_effects'], 100) ?></p>
+            <p><strong>Purpose:</strong> <?= esc($med['purpose']) ?></p>
+            <p><strong>Side Effects:</strong> <?= esc($med['side_effects']) ?></p>
 
             <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#collapse<?= $index ?>">
               🔎 More Info
@@ -102,21 +101,19 @@
               </div>
             </div>
 
-            <form action="<?= base_url('/pain/save') ?>" method="post" class="mt-2">
-              <input type="hidden" name="name" value="<?= esc($med['name']) ?>">
-              <input type="hidden" name="purpose" value="<?= esc($med['purpose']) ?>">
-              <input type="hidden" name="side_effects" value="<?= esc($med['side_effects']) ?>">
-              <input type="hidden" name="image_url" value="https://via.placeholder.com/150x100?text=FDA+API">
-
-              <button class="btn btn-primary btn-sm w-100">💾 Save to Pharmacy</button>
-            </form>
+            <button class="btn btn-primary btn-sm w-100 saveBtn"
+              data-name="<?= esc($med['name']) ?>"
+              data-purpose="<?= esc($med['purpose']) ?>"
+              data-side="<?= esc($med['side_effects']) ?>"
+              data-image="<?= $med['image_url'] ?? '/images/' . strtolower($med['name']) . '.jpg' ?>">
+              💾 Save to Pharmacy
+            </button>
           </div>
         </div>
       <?php endforeach; ?>
     <?php else: ?>
       <p class="text-center">❌ No results found.</p>
     <?php endif; ?>
-
   </div>
 
   <div class="text-center mt-4">
@@ -126,5 +123,46 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // AJAX Save to Pharmacy Handler
+  document.querySelectorAll('.saveBtn').forEach(button => {
+    button.addEventListener('click', () => {
+      const data = {
+        name: button.dataset.name,
+        purpose: button.dataset.purpose,
+        side_effects: button.dataset.side,
+        image_url: button.dataset.image
+      };
+
+      fetch("<?= base_url('/pain/save') ?>", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams(data)
+      })
+      .then(res => res.json())
+      .then(res => {
+        if (res.status === 'success') {
+          button.classList.remove('btn-primary');
+          button.classList.add('btn-success');
+          button.textContent = '✅ Saved!';
+          setTimeout(() => button.textContent = '💾 Save to Pharmacy', 2000);
+        } else {
+          button.classList.remove('btn-primary');
+          button.classList.add('btn-danger');
+          button.textContent = '❌ Error';
+          console.error(res.message);
+        }
+      })
+      .catch(err => {
+        button.classList.remove('btn-primary');
+        button.classList.add('btn-danger');
+        button.textContent = '❌ Error';
+        console.error('AJAX error:', err);
+      });
+    });
+  });
+</script>
 </body>
 </html>

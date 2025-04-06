@@ -7,5 +7,5 @@ class MedicineModel extends Model
 {
     protected $table = 'medicines';
     protected $allowedFields = ['name', 'purpose', 'side_effects', 'image_url'];
-    protected $useTimestamps = true;
+    protected $useTimestamps = False;
 }

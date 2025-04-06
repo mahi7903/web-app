@@ -9,7 +9,6 @@ class PainController extends BaseController
     public function index()
     {
         $sort = $this->request->getGet('sort_by') ?? 'name';
-
         $model = new MedicineModel();
         $meds = $model->orderBy($sort, 'ASC')->limit(12)->findAll();
 
@@ -21,7 +20,7 @@ class PainController extends BaseController
 
     public function search()
     {
-        helper('text'); // for character_limiter
+        helper('text');
         $request = service('request');
 
         $name = $request->getGet('medicine_name');
@@ -30,7 +29,7 @@ class PainController extends BaseController
 
         $model = new MedicineModel();
 
-        // DB SEARCH FIRST
+        // Search from DB first
         $query = $model->like('name', $name);
         if ($sideEffect) $query->like('side_effects', $sideEffect);
         if ($purpose) $query->like('purpose', $purpose);
@@ -40,18 +39,28 @@ class PainController extends BaseController
             return view('PainResult', ['meds' => $meds, 'source' => 'db']);
         }
 
-        // API FALLBACK
-        $apiUrl = 'https://api.fda.gov/drug/label.json?limit=10&search=openfda.brand_name:' . urlencode($name);
-        $response = @file_get_contents($apiUrl);
-        $data = json_decode($response, true);
+        // Try multiple OpenFDA fields for better results
+        $fields = ['openfda.brand_name', 'openfda.generic_name', 'openfda.substance_name', 'description'];
+        $response = null;
+        $data = [];
+
+        foreach ($fields as $field) {
+            $url = 'https://api.fda.gov/drug/label.json?limit=10&search=' . $field . ':' . urlencode($name);
+            $response = @file_get_contents($url);
+            $data = json_decode($response, true);
+            if (!empty($data['results'])) {
+                break;
+            }
+        }
 
         $apiMeds = [];
-        if (isset($data['results'])) {
+        if (!empty($data['results'])) {
             foreach ($data['results'] as $item) {
                 $apiMeds[] = [
-                    'name' => $name,
-                    'purpose' => $item['purpose'][0] ?? 'N/A',
-                    'side_effects' => $item['adverse_reactions'][0] ?? 'N/A'
+                    'name'         => strtoupper($name),
+                    'purpose'      => $item['purpose'][0] ?? 'No purpose info available',
+                    'side_effects' => $item['adverse_reactions'][0] ?? 'No side effects info',
+                    'image_url'    => '/images/' . strtolower($name) . '.jpg'
                 ];
             }
         }
@@ -59,18 +68,47 @@ class PainController extends BaseController
         return view('PainResult', ['apiMeds' => $apiMeds, 'searched' => $name, 'source' => 'api']);
     }
 
-    // Optional: Save API result to DB
     public function save()
     {
+        if ($this->request->isAJAX()) {
+            $model = new MedicineModel();
+
+            $data = [
+                'name'         => $this->request->getPost('name'),
+                'purpose'      => $this->request->getPost('purpose'),
+                'side_effects' => $this->request->getPost('side_effects'),
+                'image_url'    => $this->request->getPost('image_url')
+            ];
+
+            // Log incoming AJAX data for debug
+            log_message('info', 'AJAX Save Request: ' . json_encode($data));
+
+            try {
+                if ($model->insert($data)) {
+                    return $this->response->setJSON(['status' => 'success']);
+                } else {
+                    return $this->response->setJSON([
+                        'status' => 'error',
+                        'message' => $model->errors()
+                    ]);
+                }
+            } catch (\Exception $e) {
+                return $this->response->setJSON([
+                    'status' => 'error',
+                    'message' => $e->getMessage(),
+                    'data' => $data
+                ]);
+            }
+        }
+
+        return redirect()->to('/pain');
+    }
+
+    public function ajaxSearch()
+    {
+        $name = $this->request->getPost('query');
         $model = new MedicineModel();
-        $data = [
-            'name' => $this->request->getPost('name'),
-            'purpose' => $this->request->getPost('purpose'),
-            'side_effects' => $this->request->getPost('side_effects'),
-            'image_url' => $this->request->getPost('image_url') ?? 'https://via.placeholder.com/150x100?text=Medicine'
-        ];
-        
-        $model->save($data);
-        return redirect()->to('/pain')->with('success', 'Medicine saved to pharmacy!');
+        $results = $model->like('name', $name)->limit(6)->findAll();
+        return $this->response->setJSON($results);
     }
 }
