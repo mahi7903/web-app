@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Web Pharmacy</title>
+  <title>Mahi's Pharmacy</title>
 
   <!-- Linking Bootstrap for responsive layout and FontAwesome for icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
@@ -11,7 +11,7 @@
 
   <style>
     /* Page background and general element styling */
-    body { background-color: rgb(181, 221, 182); }
+    body { background-color: rgba(193, 243, 220, 0.73); }
     .navbar a, .navbar-brand { color: white; }
 
     /* Product image animation effect on hover */
@@ -67,6 +67,30 @@
         border-radius: 0 0 10px 10px;
       }
     }
+    /* Desktop-only adjustment for right navbar button group */
+    @media (min-width: 992px) {
+      .nav-btn-group {
+        margin-left: auto;
+        margin-right: 10px;
+      }
+
+      .nav-btn-group .btn {
+        font-size: 14px;
+        padding: 6px 14px;
+        border-radius: 6px;
+      }
+
+      .nav-btn-group .btn-outline-light {
+        border: 1px solid white;
+        color: white;
+      }
+
+      .nav-btn-group .btn-outline-light:hover {
+        background-color: white;
+        color: black;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -96,7 +120,7 @@
       <!-- Brand/logo section -->
       <a class="navbar-brand d-flex align-items-center" href="#">
         <img src="/images/medsIcon.png" alt="Logo" width="30" height="30" class="me-2">
-        Web Pharmacy
+        Mahi's Pharmacy
       </a>
 
       <!-- Hamburger menu icon for smaller screens -->
@@ -115,17 +139,18 @@
           </ul>
 
         <!-- Theme toggle and sign-in buttons (aligned right) -->
-        <div class="d-flex gap-2 mt-3 mt-lg-0">
-          <button onclick="toggleTheme()" class="btn btn-sm btn-light" id="themeToggle">Dark Theme</button>
-          <a href="http://localhost/login" class="btn btn-sm btn-light">Sign In</a>
-        </div>
+        <div class="ms-auto d-flex gap-2 align-items-center nav-btn-group">
+        <button onclick="toggleTheme()" class="btn btn-sm btn-outline-light fw-semibold text-nowrap" id="themeToggle">Dark Theme</button>
+        <a href="http://localhost/login" class="btn btn-sm btn-outline-light fw-semibold text-nowrap">Sign In</a>
+      </div>
+
       </div>
     </div>
   </nav>
 
   <!-- Welcome message -->
   <div class="container mt-4 text-center">
-    <h1>Welcome to Web Pharmacy</h1>
+    <h1>Welcome to Mahi's Pharmacy</h1>
     <p>Your trusted online pharmacy for medicines and healthcare products.</p>
   </div>
 
