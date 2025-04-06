@@ -6,28 +6,33 @@ use CodeIgniter\Controller;
 
 class UserController extends BaseController
 {
-    // Show register form
+    
     public function register()
     {
         return view('register');
     }
 
-    // Show login form
+    
     public function login()
     {
         return view('login');
     }
 
-    // Register User
+    // Handling user registration
     public function registerUser()
     {
         helper(['form']);
+        // Validating the registration form inputs
         $rules = [
             'name'     => 'required|min_length[3]',
             'email'    => 'required|valid_email|is_unique[users.email]',
             'password' => 'required|min_length[5]'
         ];
 
+
+
+
+        // If validation passes, saving the user
         if ($this->validate($rules)) {
             $model = new UserModel();
             $data = [
@@ -39,7 +44,7 @@ class UserController extends BaseController
             ];
             $model->save($data);
 
-            // Redirect to login page with success message
+            // Redirecting to login page with success message
             return redirect()->to('/login')->with('success', 'Registration successful! Please sign in.');
         } else {
             return view('register', [
@@ -48,15 +53,20 @@ class UserController extends BaseController
         }
     }
 
-    // Login User
+     // Handling user login
     public function loginUser()
     {
         $model = new UserModel();
         $email = $this->request->getPost('email');
         $password = $this->request->getPost('password');
 
+
+
+        // Fetching the user by email
         $user = $model->where('email', $email)->first();
 
+
+        // Verifying the password and setting session
         if ($user && password_verify($password, $user['password'])) {
             // Set user session
             session()->set([
@@ -65,14 +75,14 @@ class UserController extends BaseController
                 'logged_in' => true
             ]);
 
-            // Redirect to homepage with flash message
+            // // Redirecting
             return redirect()->to('/')->with('message', 'You are logged in!');
         } else {
             return redirect()->back()->with('error', 'Invalid email or password.');
         }
     }
 
-    // Logout User
+    // Logout User function
     public function logout()
     {
         session()->destroy();
