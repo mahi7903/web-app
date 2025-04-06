@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Controllers;
 use App\Models\MedicineModel;
 use CodeIgniter\Controller;
@@ -22,14 +21,11 @@ class PainController extends BaseController
     {
         helper('text');
         $request = service('request');
-
         $name = $request->getGet('medicine_name');
         $sideEffect = $request->getGet('side_effect');
         $purpose = $request->getGet('purpose');
 
         $model = new MedicineModel();
-
-        // Search from DB first
         $query = $model->like('name', $name);
         if ($sideEffect) $query->like('side_effects', $sideEffect);
         if ($purpose) $query->like('purpose', $purpose);
@@ -39,28 +35,27 @@ class PainController extends BaseController
             return view('PainResult', ['meds' => $meds, 'source' => 'db']);
         }
 
-        // Try multiple OpenFDA fields for better results
         $fields = ['openfda.brand_name', 'openfda.generic_name', 'openfda.substance_name', 'description'];
-        $response = null;
         $data = [];
 
         foreach ($fields as $field) {
             $url = 'https://api.fda.gov/drug/label.json?limit=10&search=' . $field . ':' . urlencode($name);
             $response = @file_get_contents($url);
             $data = json_decode($response, true);
-            if (!empty($data['results'])) {
-                break;
-            }
+            if (!empty($data['results'])) break;
         }
 
         $apiMeds = [];
         if (!empty($data['results'])) {
             foreach ($data['results'] as $item) {
+                $imagePath = FCPATH . 'images/' . strtolower($name) . '.jpg';
                 $apiMeds[] = [
                     'name'         => strtoupper($name),
                     'purpose'      => $item['purpose'][0] ?? 'No purpose info available',
                     'side_effects' => $item['adverse_reactions'][0] ?? 'No side effects info',
-                    'image_url'    => '/images/' . strtolower($name) . '.jpg'
+                    'image_url'    => file_exists($imagePath)
+                        ? '/images/' . strtolower($name) . '.jpg'
+                        : base_url('images/no-image.jpg')
                 ];
             }
         }
@@ -70,45 +65,18 @@ class PainController extends BaseController
 
     public function save()
     {
-        if ($this->request->isAJAX()) {
-            $model = new MedicineModel();
-
-            $data = [
-                'name'         => $this->request->getPost('name'),
-                'purpose'      => $this->request->getPost('purpose'),
-                'side_effects' => $this->request->getPost('side_effects'),
-                'image_url'    => $this->request->getPost('image_url')
-            ];
-
-            // Log incoming AJAX data for debug
-            log_message('info', 'AJAX Save Request: ' . json_encode($data));
-
-            try {
-                if ($model->insert($data)) {
-                    return $this->response->setJSON(['status' => 'success']);
-                } else {
-                    return $this->response->setJSON([
-                        'status' => 'error',
-                        'message' => $model->errors()
-                    ]);
-                }
-            } catch (\Exception $e) {
-                return $this->response->setJSON([
-                    'status' => 'error',
-                    'message' => $e->getMessage(),
-                    'data' => $data
-                ]);
-            }
-        }
-
-        return redirect()->to('/pain');
-    }
-
-    public function ajaxSearch()
-    {
-        $name = $this->request->getPost('query');
         $model = new MedicineModel();
-        $results = $model->like('name', $name)->limit(6)->findAll();
-        return $this->response->setJSON($results);
+        $data = [
+            'name'         => $this->request->getPost('name'),
+            'purpose'      => $this->request->getPost('purpose'),
+            'side_effects' => $this->request->getPost('side_effects'),
+            'image_url'    => $this->request->getPost('image_url')
+        ];
+
+        if ($model->insert($data)) {
+            return redirect()->to('/pain')->with('success', 'Medicine saved to pharmacy!');
+        } else {
+            return redirect()->to('/pain')->with('error', 'Failed to save medicine.');
+        }
     }
 }
