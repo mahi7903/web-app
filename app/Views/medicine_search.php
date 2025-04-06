@@ -170,6 +170,12 @@
       .search-box { flex-direction: column; align-items: stretch; }
       .back-btn { width: 45px; height: 45px; font-size: 18px; }
     }
+      .dark-mode #searchResults {
+      background-color: #2a2a2a;
+      color: white;
+      box-shadow: 0 4px 16px rgba(255,255,255,0.08);
+    }
+
   </style>
 </head>
 <body>
@@ -190,6 +196,17 @@
 
       <!-- Where suggestions from API will be shown -->
       <div id="suggestions"></div>
+      <!-- Compact floating search result box -->
+      <div id="searchResults" style="
+        margin-top: 20px;
+        background: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        padding: 15px;
+        max-height: 300px;
+        overflow-y: auto;
+        display: none;
+      "></div>
 
       <!-- Display recent search terms saved locally -->
       <div id="recentBox" style="margin-top:20px;">
@@ -204,38 +221,78 @@
     // This function listens to every keyup (typing) event on the input
     // and sends an API request to OpenFDA API to get live medicine suggestions
     document.getElementById('medInput').addEventListener('keyup', function () {
-      const q = this.value;
-      if (q.length < 3) {
-        document.getElementById('suggestions').innerHTML = '';
-        return;
-      }
+  const q = this.value.trim();
 
-      //  AJAX-like fetch() request
-      // This fetches data from the API and shows suggestions below the input box before reloading the page
-      fetch(`https://api.fda.gov/drug/label.json?limit=5&search=${encodeURIComponent(q)}`)
-        .then(res => res.json())
-        .then(data => {
-          const output = (data.results || []).map(item =>
-            `<div>
-              <strong>${item.openfda.generic_name?.[0] || 'Unknown'}</strong><br>
-              <small>${item.purpose?.[0] || 'No purpose info available'}</small>
-            </div>`
-          ).join('');
-          document.getElementById('suggestions').innerHTML = output || '<em>No matches found</em>';
-        })
-        .catch(() => {
-          document.getElementById('suggestions').innerHTML = '<em>No suggestions available</em>';
-        });
+  // If input is too short, hide suggestions and results
+  if (q.length < 3) {
+    document.getElementById('suggestions').innerHTML = '';
+    document.getElementById('searchResults').style.display = 'none';
+    return;
+  }
+
+  // AJAX Live fetch suggestions from OpenFDA API based on user input
+  fetch(`https://api.fda.gov/drug/label.json?limit=5&search=${encodeURIComponent(q)}`)
+    .then(res => res.json())
+    .then(data => {
+      const output = (data.results || []).map(item =>
+        `<div>
+          <strong>${item.openfda.generic_name?.[0] || 'Unknown'}</strong><br>
+          <small>${item.purpose?.[0] || 'No purpose info available'}</small>
+        </div>`
+      ).join('');
+      //// If AJAX fails (e.g., network issue), showing fallback
+      document.getElementById('suggestions').innerHTML = output || '<em>No matches found</em>';
+    })
+    .catch(() => {
+      document.getElementById('suggestions').innerHTML = '<em>No suggestions available</em>';
     });
 
+  // If input is 4 or more characters, also fetch and show full search results
+  if (q.length >= 4) {
+    fetchCompactResults(q);
+  }
+});
+
+
     // Saves the term in localStorage when user clicks "Search"
-    function submitSearch() {
-      const term = document.getElementById('medInput').value.trim();
-      if (term) {
-        saveRecentSearch(term);
-        alert('Searching for: ' + term);
-      }
-    }
+          function submitSearch() {
+          const term = document.getElementById('medInput').value.trim();
+          if (!term) return;
+
+          saveRecentSearch(term);
+          fetchCompactResults(term);
+        }
+
+        function fetchCompactResults(q) {
+          const resultBox = document.getElementById('searchResults');
+          resultBox.style.display = 'block';
+          resultBox.innerHTML = '<em>Loading...</em>';
+
+          const url = `https://api.fda.gov/drug/label.json?limit=10&search=openfda.generic_name:${encodeURIComponent(q)}+openfda.brand_name:${encodeURIComponent(q)}`;
+
+          fetch(url)
+            .then(res => res.json())
+            .then(data => {
+              const output = (data.results || []).map(item =>
+                `<div style="
+                    padding: 12px;
+                    border-bottom: 1px solid #eee;
+                    margin-bottom: 8px;
+                ">
+                  <strong style="font-size:16px; color:#007d44;">
+                    ${item.openfda.generic_name?.[0] || item.openfda.brand_name?.[0] || 'Unknown'}
+                  </strong><br>
+                  <small>${item.purpose?.[0] || 'No purpose info available'}</small>
+                </div>`
+              ).join('');
+
+              resultBox.innerHTML = output || '<em>No matches found</em>';
+            })
+            .catch(() => {
+              resultBox.innerHTML = '<em>Error fetching data</em>';
+            });
+        }
+
 
     // This function stores the recent searched term
     function saveRecentSearch(term) {
@@ -271,6 +328,7 @@
       }
       loadRecentSearches();
     };
+    
   </script>
 </body>
 </html>
