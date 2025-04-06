@@ -112,10 +112,7 @@
           <li class="nav-item"><a class="nav-link" href="http://localhost/disinfectingcream">Disinfecting Creams</a></li>
           <li class="nav-item"><a class="nav-link" href="#">Hair/Skin Care</a></li>
           <li class="nav-item"><a class="nav-link" href="#">Sexual Wellbeing</a></li>
-          <li class="nav-item"><a class="nav-link" href="#">Essential Vitamins</a></li>
-          <li class="nav-item"><a class="nav-link" href="#">Quit Smoking</a></li>
-          <li class="nav-item"><a class="nav-link" href="#">Fragrance</a></li>
-        </ul>
+          </ul>
 
         <!-- Theme toggle and sign-in buttons (aligned right) -->
         <div class="d-flex gap-2 mt-3 mt-lg-0">

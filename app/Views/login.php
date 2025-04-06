@@ -4,9 +4,13 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Login - Mahi’s Pharmacy</title>
+
+  <!--  Bootstrap and FontAwesome for layout and icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"/>
+
   <style>
+    /*  Light green theme with dark mode support */
     body {
       background-color: #b5ddb6;
       font-family: 'Segoe UI', sans-serif;
@@ -18,6 +22,7 @@
       color: white;
     }
 
+    /*  Login box container */
     .login-container {
       max-width: 420px;
       background-color: #fff;
@@ -32,6 +37,7 @@
       color: white;
     }
 
+    /*  Form title */
     h1.form-title {
       text-align: center;
       margin-bottom: 25px;
@@ -42,6 +48,7 @@
       color: #90ee90;
     }
 
+    /* Icon + input styling */
     .input-group {
       display: flex;
       align-items: center;
@@ -65,6 +72,7 @@
       color: inherit;
     }
 
+    /* ✅ Login button style */
     .btn {
       width: 100%;
       background-color: #007d44;
@@ -80,6 +88,7 @@
       background-color: #005f32;
     }
 
+    /* ✅ Forgot password link */
     .recover {
       text-align: right;
       font-size: 13px;
@@ -90,12 +99,14 @@
       text-decoration: none;
     }
 
+    /* ✅ OR separator */
     .or {
       text-align: center;
       margin: 20px 0;
       color: #666;
     }
 
+    /* ✅ Social icons (non-functional) */
     .icons {
       display: flex;
       justify-content: center;
@@ -105,6 +116,7 @@
       margin-bottom: 15px;
     }
 
+    /* ✅ Link to registration */
     .links {
       text-align: center;
       font-size: 14px;
@@ -123,8 +135,11 @@
 </head>
 <body>
 
+<!--  Main login card -->
 <div class="login-container">
   <h1 class="form-title">Sign In</h1>
+
+  <!--  Login form sends data via POST to login/submit route -->
   <form method="POST" action="<?= base_url('login/submit') ?>">
     <div class="input-group">
       <i class="fas fa-envelope"></i>
@@ -139,16 +154,21 @@
   </form>
 
   <p class="or">------OR------</p>
+
+  <!--  Social login placeholders (not linked) -->
   <div class="icons">
     <i class="fab fa-google"></i>
     <i class="fab fa-facebook"></i>
   </div>
+
+  <!--  Link to register page -->
   <div class="links">
     <p>Don't have an account?</p>
     <a href="http://localhost/register">Sign Up</a>
   </div>
 </div>
 
+<!--  Checking for saved dark mode and apply if needed -->
 <script>
   window.onload = function () {
     if (localStorage.getItem("theme") === "dark") {

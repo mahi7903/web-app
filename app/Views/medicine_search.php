@@ -4,9 +4,12 @@
   <meta charset="UTF-8">
   <title>Search Medicine | Web Pharmacy</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Including Font Awesome for icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
   <style>
+    /* Overall styling of the page background and fonts */
     body {
       font-family: 'Segoe UI', sans-serif;
       background-color: rgb(181, 221, 182);
@@ -15,11 +18,13 @@
       transition: all 0.3s ease;
     }
 
+    /* Styling for dark mode toggle */
     .dark-mode {
       background-color: rgb(21, 20, 20);
       color: white;
     }
 
+    /* Container that holds the form box */
     .container {
       max-width: 600px;
       margin: auto;
@@ -35,6 +40,7 @@
       box-shadow: 0 5px 25px rgba(255, 255, 255, 0.1);
     }
 
+    /* Form title */
     h2 {
       text-align: center;
       margin-bottom: 25px;
@@ -46,11 +52,13 @@
       color: #98f8c4;
     }
 
+    /* Wrapper for search area */
     .search-wrapper {
       position: relative;
       width: 100%;
     }
 
+    /* Input box and button layout */
     .search-box {
       display: flex;
       gap: 10px;
@@ -82,6 +90,7 @@
       background-color: #005e34;
     }
 
+    /* Live suggestion dropdown box */
     #suggestions {
       position: absolute;
       top: 100%;
@@ -120,6 +129,7 @@
       background-color: rgba(0, 255, 160, 0.08);
     }
 
+    /* Back to home floating button */
     .back-btn {
       position: fixed;
       bottom: 20px;
@@ -141,7 +151,6 @@
 
     .back-btn:hover {
       background-color: #007d44;
-      color: white;
     }
 
     .dark-mode .back-btn {
@@ -154,53 +163,35 @@
     }
 
     @media screen and (max-width: 600px) {
-      body {
-        padding: 20px 10px;
-      }
-
-      .container {
-        padding: 20px;
-      }
-
-      h2 {
-        font-size: 22px;
-      }
-
-      #medInput {
-        font-size: 15px;
-      }
-
-      button {
-        font-size: 15px;
-        padding: 10px 14px;
-      }
-
-      .search-box {
-        flex-direction: column;
-        align-items: stretch;
-      }
-
-      .back-btn {
-        width: 45px;
-        height: 45px;
-        font-size: 18px;
-      }
+      body { padding: 20px 10px; }
+      .container { padding: 20px; }
+      h2 { font-size: 22px; }
+      #medInput, button { font-size: 15px; }
+      .search-box { flex-direction: column; align-items: stretch; }
+      .back-btn { width: 45px; height: 45px; font-size: 18px; }
     }
   </style>
 </head>
 <body>
 
+  <!-- Back button to return to home -->
   <a href="http://localhost" class="back-btn" title="Back to Home">⬅️</a>
 
+  <!-- This container holds the live medicine search interface -->
   <div class="container">
     <h2>Search Medicine (OpenFDA API)</h2>
 
+    <!-- This is the wrapper where typing and suggestions happen -->
     <div class="search-wrapper">
       <div class="search-box">
         <input id="medInput" type="text" placeholder="Type a medicine name..." autocomplete="off" />
         <button onclick="submitSearch()">Search</button>
       </div>
+
+      <!-- Where suggestions from API will be shown -->
       <div id="suggestions"></div>
+
+      <!-- Display recent search terms saved locally -->
       <div id="recentBox" style="margin-top:20px;">
         <strong style="color:#007d44;">Recent Searches:</strong>
         <ul id="recentSearches" style="padding-left:18px; margin-top:5px;"></ul>
@@ -209,7 +200,9 @@
   </div>
 
   <script>
-    // Search suggestion
+    // Ajax function
+    // This function listens to every keyup (typing) event on the input
+    // and sends an API request to OpenFDA API to get live medicine suggestions
     document.getElementById('medInput').addEventListener('keyup', function () {
       const q = this.value;
       if (q.length < 3) {
@@ -217,6 +210,8 @@
         return;
       }
 
+      //  AJAX-like fetch() request
+      // This fetches data from the API and shows suggestions below the input box before reloading the page
       fetch(`https://api.fda.gov/drug/label.json?limit=5&search=${encodeURIComponent(q)}`)
         .then(res => res.json())
         .then(data => {
@@ -233,7 +228,7 @@
         });
     });
 
-    // Save & show recent searches
+    // Saves the term in localStorage when user clicks "Search"
     function submitSearch() {
       const term = document.getElementById('medInput').value.trim();
       if (term) {
@@ -242,15 +237,17 @@
       }
     }
 
+    // This function stores the recent searched term
     function saveRecentSearch(term) {
       let recent = JSON.parse(localStorage.getItem('medRecentSearches') || '[]');
       if (!recent.includes(term)) {
         recent.unshift(term);
-        if (recent.length > 5) recent.pop();
+        if (recent.length > 5) recent.pop(); // only keep last 5
         localStorage.setItem('medRecentSearches', JSON.stringify(recent));
       }
     }
 
+    // This loads the saved searches and shows them as clickable items
     function loadRecentSearches() {
       const ul = document.getElementById('recentSearches');
       if (!ul) return;
@@ -267,7 +264,7 @@
       });
     }
 
-    // Sync dark theme & load searches on load
+    // On page load: check if dark mode was saved, apply it, and load recent searches
     window.onload = function () {
       if (localStorage.getItem("theme") === "dark") {
         document.body.classList.add("dark-mode");
