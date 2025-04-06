@@ -97,35 +97,42 @@
   <div class="container mt-4">
     <div class="row row-cols-2 row-cols-md-4 g-3">
       <?php 
-      $products = [
-          ["General Meds", "general-meds.jpg"],
-          ["Personal Care/Sanitary", "sanitary.jpg"],
-          ["Disinfecting Creams", "disinfecting-creams.jpg"],
-          ["First Aid Kit", "first-aid.png"],
-          ["Fragrance", "fragrance.jpg"],
-          ["COVID-19 Essentials", "covid-19.jpg"],
-          ["Baby/Child Care", "babycare.jpg"],
-          ["Sexual Wellbeing", "sexualwellbeing.jpg"],
-          ["Essential Vitamins", "vitamins.jpg"],
-          ["Skin Care", "skincare.jpg"],
-          ["Contraceptive Pills", "pills.jpg"],
-          ["Medical Equipment", "medical.avif"],
-          ["Oral Care", "oral-care.png"],
-          ["Eye/Ear Care", "eye.jpg"],
-          ["Hair Care", "haircare.jpg"],
-          ["Quit Smoking Aids", "smoking.png"],
-          ["Mental Well-being & Sleep Aids", "sleep.jpg"],
-          ["Pet Medicines & Supplies", "pett.jpg"],
-          ["Herbal & Homeopathic Remedies", "herbal.jpg"]
-      ];
-
-      foreach ($products as $product) {
-          echo '
-          <div class="col text-center">
-              <img src="/Images/' . $product[1] . '" class="product-img">
-              <p>' . $product[0] . '</p>
-          </div>';
-      }
+          $products = [
+            ["General Meds", "general-meds.jpg"],
+            ["Personal Care/Sanitary", "sanitary.jpg"],
+            ["Disinfecting Creams", "disinfecting-creams.jpg"],
+            ["First Aid Kit", "first-aid.png"],
+            ["Fragrance", "fragrance.jpg"],
+            ["COVID-19 Essentials", "covid-19.jpg"],
+            ["Baby/Child Care", "babycare.jpg"],
+            ["Sexual Wellbeing", "sexualwellbeing.jpg"],
+            ["Essential Vitamins", "vitamins.jpg"],
+            ["Skin Care", "skincare.jpg"],
+            ["Contraceptive Pills", "pills.jpg"],
+            ["Medical Equipment", "medical.avif"],
+            ["Oral Care", "oral-care.png"],
+            ["Eye/Ear Care", "eye.jpg"],
+            ["Hair Care", "haircare.jpg"],
+            ["Quit Smoking Aids", "smoking.png"],
+            ["Mental Well-being & Sleep Aids", "sleep.jpg"],
+            ["Pet Medicines & Supplies", "pett.jpg"],
+            ["Herbal & Homeopathic Remedies", "herbal.jpg"]
+        ];
+        
+        foreach ($products as $product) {
+            $link = "#"; // default fallback
+            if ($product[0] === "General Meds") {
+                $link = "http://localhost/pain";
+            }
+        
+            echo '
+            <div class="col text-center">
+              <a href="' . $link . '" style="text-decoration: none; color: inherit;">
+                <img src="/Images/' . $product[1] . '" class="product-img">
+                <p>' . $product[0] . '</p>
+              </a>
+            </div>';
+        }
       ?>
     </div>
   </div>
