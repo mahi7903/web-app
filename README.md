@@ -205,7 +205,7 @@ AJAX Implementations: Multiple
 ### Clone Repository
 
 ~~~
-git clone <your-repo-url>
+git clone https://github.com/mahi7903/web-app
 cd web-app
 ~~~
 
